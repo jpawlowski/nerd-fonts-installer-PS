@@ -15,7 +15,7 @@ An interactive installer for [Nerd Fonts](https://www.nerdfonts.com/) and [Casca
 ![PowerShell Web Installer for Nerd Fonts](https://raw.githubusercontent.com/jpawlowski/nerd-fonts-installer-PS/main/images/nerd-fonts-installer.gif)
 
 The script downloads the font archive from the GitHub release pages and installs the font files to
-the user's font directory, or the system font directory when using the AllUsers scope with
+the user's font directory, or the system font directory when using the `AllUsers` scope with
 elevated permissions.
 
 ## Prerequisites
