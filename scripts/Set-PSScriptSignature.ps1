@@ -1,5 +1,5 @@
 <#PSScriptInfo
-.VERSION 1.0.0
+.VERSION 1.0.1
 .GUID f5fe74f4-b2ef-4f83-8325-15519c9c92fb
 .AUTHOR Julian Pawlowski
 .COPYRIGHT © 2024 Julian Pawlowski.
