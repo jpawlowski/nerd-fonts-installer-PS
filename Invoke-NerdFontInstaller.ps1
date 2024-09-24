@@ -1015,7 +1015,6 @@ begin {
             if ([string]::IsNullOrEmpty($tarVersion)) {
                 return $false
             }
-            Write-Verbose "GNU tar version: $($Matches[1])"
 
             switch ($format) {
                 'xz' { return [version]$tarVersion -ge [version]'1.22' }
