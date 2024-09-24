@@ -1012,6 +1012,7 @@ begin {
         if ($isGnuTar) {
             # Extract GNU tar version
             if ($tarVersionOutput -match 'tar \(GNU tar\) (\d+\.\d+(?:.\d+)?)') {
+                Write-Verbose "GNU tar version: $($Matches[1])"
                 $tarVersion = [version]$Matches[1]
             } else {
                 return $false
