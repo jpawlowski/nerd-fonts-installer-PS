@@ -1498,7 +1498,7 @@ end {
     }
 
     if ($IsLinux -and (Get-Command -Name fc-cache -ErrorAction Ignore)) {
-        if ($Verbose) {
+        if ($VerbosePreference -eq 'Continue') {
             Write-Verbose "Refreshing font cache"
             fc-cache -fv
         }
