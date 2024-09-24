@@ -2,7 +2,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.3.2
+.VERSION 1.3.3
 
 .GUID a3238c59-8a0e-4c11-a334-f071772d1255
 
@@ -25,10 +25,8 @@
 .EXTERNALSCRIPTDEPENDENCIES
 
 .RELEASENOTES
-    Version 1.3.2 (2024-09-02)
-    - Move to separate repository.
-    - Use personal shortlink service.
-    - Add code signature.
+    Version 1.3.3 (2024-09-24)
+    - Fix BSD tar and GNU tar compatibility issues
 #>
 
 <#
@@ -1009,11 +1007,27 @@ begin {
             [string]$format
         )
         $tarVersionOutput = & tar --version 2>&1
-        switch ($format) {
-            'xz' { return $tarVersionOutput -match 'liblzma' }
-            'bzip2' { return $tarVersionOutput -match 'bz2lib' }
-            'gz' { return $tarVersionOutput -match 'zlib' }
-            default { return $false }
+        $isGnuTar = $tarVersionOutput -match 'GNU tar'
+
+        if ($isGnuTar) {
+            # Extract GNU tar version
+            $tarVersion = if ($tarVersionOutput -match 'tar \(GNU tar\) (\d+\.\d+(?:.\d+)?)') { [version]$matches[1] } else { return $false }
+
+            switch ($format) {
+                'xz' { return $tarVersion -ge [version]'1.22' }
+                'bzip2' { return $tarVersion -ge [version]'1.15' }
+                'gz' { return $true }  # Generally supported in all versions
+                default { return $false }
+            }
+        }
+        else {
+            # Assume BSD tar
+            switch ($format) {
+                'xz' { return $tarVersionOutput -match 'liblzma' }
+                'bzip2' { return $tarVersionOutput -match 'bz2lib' }
+                'gz' { return $tarVersionOutput -match 'zlib' }
+                default { return $false }
+            }
         }
     }
     function Expand-FromArchiveType {
@@ -1026,14 +1040,14 @@ begin {
 
         # Define a mapping table for command templates
         $commandTemplates = @{
-            'tar.xz'  = '{0} -xJf "{1}" -C "{2}"'
-            'tar.bz2' = '{0} -xjf "{1}" -C "{2}"'
-            'tar.gz'  = '{0} -xzf "{1}" -C "{2}"'
-            'tar'     = '{0} -xf "{1}" -C "{2}"'
-            'xz'      = '{0} -d "{1}" -C "{2}"'
-            '7z'      = '{0} x "{1}" -o"{2}"'
-            'bzip2'   = '{0} -d "{1}" -C "{2}"'
-            'gzip'    = '{0} -d "{1}" -C "{2}"'
+            'tar:xz'  = 'tar -xJf "{0}" -C "{1}"'
+            'tar:bz2' = 'tar -xjf "{0}" -C "{1}"'
+            'tar:gz'  = 'tar -xzf "{0}" -C "{1}"'
+            'tar'     = 'tar -xf "{0}" -C "{1}"'
+            'xz'      = 'xz -d "{0}" -C "{1}"'
+            '7z'      = '7z x "{0}" -o"{1}"'
+            'bzip2'   = 'bzip2 -d "{0}" -C "{1}"'
+            'gzip'    = 'gzip -d "{0}" -C "{1}"'
         }
 
         if ($null -eq $Executable) {
@@ -1046,8 +1060,8 @@ begin {
             Write-Verbose "Extracted zip file using .NET functions."
         }
         else {
-            $commandTemplate = $commandTemplates[$FileExtension]
-            $command = $commandTemplate -f $Executable, $SourceFile, $DestinationFolder
+            $commandTemplate = $commandTemplates[$Executable]
+            $command = $commandTemplate -f $SourceFile, $DestinationFolder
             Write-Verbose "Running command: $command"
 
             # Split the command into the executable and its arguments
@@ -1055,7 +1069,7 @@ begin {
             $arguments = if ($commandParts.Length -gt 1) { $commandParts[1] } else { "" }
 
             # Execute the external command
-            Start-Process -FilePath $Executable -ArgumentList $arguments -NoNewWindow -Wait
+            Start-Process -FilePath $commandParts[0] -ArgumentList $arguments -NoNewWindow -Wait
         }
     }
     #endregion Functions -------------------------------------------------------
@@ -1182,9 +1196,9 @@ begin {
     if ($IsMacOS -or $IsLinux) {
         # Prefer tar if available
         if (Get-Command tar -ErrorAction Ignore) {
-            if (Test-TarSupportsFormat 'xz') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.xz'; Executable = 'tar' }) }
-            if (Test-TarSupportsFormat 'bzip2') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.bz2'; Executable = 'tar' }) }
-            if (Test-TarSupportsFormat 'gz') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.gz'; Executable = 'tar' }) }
+            if (Test-TarSupportsFormat 'xz') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.xz'; Executable = 'tar:xz' }) }
+            if (Test-TarSupportsFormat 'bzip2') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.bz2'; Executable = 'tar:bz2' }) }
+            if (Test-TarSupportsFormat 'gz') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.gz'; Executable = 'tar:gz' }) }
             [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar'; Executable = 'tar' })
         }
         # Check for individual tools
@@ -1195,9 +1209,9 @@ begin {
     }
     else {
         if (Get-Command tar -ErrorAction Ignore) {
-            if (Test-TarSupportsFormat 'xz') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.xz'; Executable = 'tar' }) }
-            if (Test-TarSupportsFormat 'bzip2') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.bz2'; Executable = 'tar' }) }
-            if (Test-TarSupportsFormat 'gz') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.gz'; Executable = 'tar' }) }
+            if (Test-TarSupportsFormat 'xz') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.xz'; Executable = 'tar:xz' }) }
+            if (Test-TarSupportsFormat 'bzip2') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.bz2'; Executable = 'tar:bz2' }) }
+            if (Test-TarSupportsFormat 'gz') { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.gz'; Executable = 'tar:gz' }) }
             [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar'; Executable = 'tar' })
         }
         if (Get-Command 7z -ErrorAction Ignore) { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = '7z'; Executable = '7z' }) }
