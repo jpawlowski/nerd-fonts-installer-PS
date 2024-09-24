@@ -622,7 +622,7 @@ begin {
             }
             if ($inHelpBlock) {
                 if ($line -match '^\s*\.VERSION\s+(.+)$') {
-                    $versionNumber = $matches[1].Trim()
+                    $versionNumber = $Matches[1].Trim()
                     break
                 }
             }
@@ -1012,7 +1012,7 @@ begin {
         if ($isGnuTar) {
             # Extract GNU tar version
             if ($tarVersionOutput -match 'tar \(GNU tar\) (\d+\.\d+(?:.\d+)?)') {
-                $tarVersion = [version]$matches[1]
+                $tarVersion = [version]$Matches[1]
             } else {
                 return $false
             }
@@ -1142,8 +1142,8 @@ begin {
             $shaLines = $shaContentString -split "`n"
             foreach ($line in $shaLines) {
                 if ($line -match '^\s*([a-fA-F0-9]{64})\s+(.+)$') {
-                    $sha256 = $matches[1]
-                    $fileName = $matches[2].Trim()
+                    $sha256 = $Matches[1]
+                    $fileName = $Matches[2].Trim()
                     $fontReleases[$url].Sha256Data[$fileName] = $sha256
                     Write-Debug "SHA-256: $sha256, File: $fileName"
                 }
