@@ -1011,16 +1011,15 @@ begin {
 
         if ($isGnuTar) {
             # Extract GNU tar version
-            if ($tarVersionOutput -match 'tar \(GNU tar\) (\d+\.\d+(?:.\d+)?)') {
-                Write-Verbose "GNU tar version: $($Matches[1])"
-                $tarVersion = [version]$Matches[1]
-            } else {
+            $tarVersion = [regex]::Match($tarVersionOutput, 'tar \(GNU tar\) (\d+\.\d+(?:.\d+)?)').Groups[1].Value
+            if ([string]::IsNullOrEmpty($tarVersion)) {
                 return $false
             }
+            Write-Verbose "GNU tar version: $($Matches[1])"
 
             switch ($format) {
-                'xz' { return $tarVersion -ge [version]'1.22' }
-                'bzip2' { return $tarVersion -ge [version]'1.15' }
+                'xz' { return [version]$tarVersion -ge [version]'1.22' }
+                'bzip2' { return [version]$tarVersion -ge [version]'1.15' }
                 'gz' { return $true }  # Generally supported in all versions
                 default { return $false }
             }
