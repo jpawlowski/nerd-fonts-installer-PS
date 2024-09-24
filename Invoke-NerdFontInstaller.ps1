@@ -1011,7 +1011,11 @@ begin {
 
         if ($isGnuTar) {
             # Extract GNU tar version
-            $tarVersion = if ($tarVersionOutput -match 'tar \(GNU tar\) (\d+\.\d+(?:.\d+)?)') { [version]$matches[1] } else { return $false }
+            if ($tarVersionOutput -match 'tar \(GNU tar\) (\d+\.\d+(?:.\d+)?)') {
+                $tarVersion = [version]$matches[1]
+            } else {
+                return $false
+            }
 
             switch ($format) {
                 'xz' { return $tarVersion -ge [version]'1.22' }
@@ -1188,7 +1192,7 @@ begin {
 
     # Determine the supported archive formats based on the local machine
     $supportedArchiveFormats = [System.Collections.Generic.List[PSCustomObject]]::new()
-    $archivePreferenceOrder = @('tar.xz', '7z', 'tar.bz2', 'tar.gz', 'zip', 'tar')
+    $archivePreferenceOrder = @('tar.xz', 'xz', '7z', 'tar.bz2', 'tar.gz', 'zip', 'tar')
 
     # ZIP is natively supported in PowerShell
     [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'zip'; Executable = 'powershell' })
@@ -1202,7 +1206,7 @@ begin {
             [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar'; Executable = 'tar' })
         }
         # Check for individual tools
-        if (Get-Command xz -ErrorAction Ignore) { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.xz'; Executable = 'xz' }) }
+        if (Get-Command xz -ErrorAction Ignore) { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'xz'; Executable = 'xz' }) }
         if (Get-Command 7z -ErrorAction Ignore) { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = '7z'; Executable = '7z' }) }
         if (Get-Command bzip2 -ErrorAction Ignore) { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.bz2'; Executable = 'bzip2' }) }
         if (Get-Command gzip -ErrorAction Ignore) { [void]$supportedArchiveFormats.Add([pscustomobject]@{FileExtension = 'tar.gz'; Executable = 'gzip' }) }
