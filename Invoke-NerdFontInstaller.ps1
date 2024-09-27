@@ -2,7 +2,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.3.4
+.VERSION 1.3.5
 
 .GUID a3238c59-8a0e-4c11-a334-f071772d1255
 
@@ -25,8 +25,8 @@
 .EXTERNALSCRIPTDEPENDENCIES
 
 .RELEASENOTES
-    Version 1.3.4 (2024-09-24)
-    - Fix BSD tar and GNU tar compatibility issues
+    Version 1.3.5 (2024-09-27)
+    - Fix font location for macOS
 #>
 
 <#
@@ -1167,7 +1167,7 @@ begin {
             $fontDestinationFolderPath = '/Library/Fonts'
         }
         else {
-            $fontDestinationFolderPath = "${xdgDataHome}/fonts"
+            $fontDestinationFolderPath = "${HOME}/Library/Fonts"
         }
     }
     elseif ($IsLinux) {
