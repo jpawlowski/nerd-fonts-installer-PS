@@ -1,0 +1,42 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# PowerShell files will always have LF line endings on checkout and in the repository.
+*.ps1 text eol=lf
+*.psd1 text eol=lf
+*.psm1 text eol=lf
+*.ps1xml text eol=lf
+*.psc1 text eol=lf
+*.clixml text eol=lf
+
+# Windows script and batch files will always have CRLF line endings on checkout and in the repository.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Markdown, CSV, and Text files will always have LF line endings on checkout and in the repository.
+*.md text eol=lf
+*.csv text eol=lf
+*.txt text eol=lf
+
+# JSON and YAML files will always have LF line endings on checkout and in the repository.
+*.json text eol=lf
+*.jsonc text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# XML files will always have LF line endings on checkout and in the repository.
+*.xml text eol=lf
+
+# Set svg to binary type, as SVG is unlikely to be edited by hand. Can be treated as checked in blob
+*.svg binary
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.exe binary

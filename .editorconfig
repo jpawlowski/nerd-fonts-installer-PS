@@ -1,0 +1,64 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+
+# PowerShell files
+[*.{ps1,psd1,psm1,ps1xml,psc1,clixml}]
+end_of_line = lf
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Windows script and batch files
+[*.{cmd,bat}]
+end_of_line = crlf
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+insert_final_newline = true
+
+# CSV and Text files
+[*.{csv,txt}]
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# JSON and YAML files
+[*.{json,jsonc,yml}]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# XML files
+[*.xml]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# VS Code workspace files
+[*.code-workspace]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# Matches the exact file .editorconfig
+[.editorconfig]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# Docker
+[Dockerfile]
+indent_style = space
+indent_size = 4
