@@ -476,11 +476,24 @@ param(`$commandName, `$parameterName, `$wordToComplete, `$commandAst, `$fakeBoun
         ) {
             $true
         }
-        elseif ($Host.UI.RawUI.KeyAvailable -or [System.Environment]::UserInteractive) {
-            $false
-        }
         else {
-            $true
+            # Check if running in an interactive environment
+            # Wrap in try-catch to handle DSC and other restrictive contexts where Host.UI might be unavailable
+            try {
+                # Consider it interactive if we have a functional UI or if UserInteractive is true
+                $hasUI = ($null -ne $Host.UI -and $null -ne $Host.UI.RawUI)
+                $isInteractive = $hasUI -or [System.Environment]::UserInteractive
+                if ($isInteractive) {
+                    $false
+                }
+                else {
+                    $true
+                }
+            }
+            catch {
+                # If we can't determine interactivity (e.g., in DSC context), treat as non-interactive
+                $true
+            }
         }
     )
     $paramAttribute.Position = 0
