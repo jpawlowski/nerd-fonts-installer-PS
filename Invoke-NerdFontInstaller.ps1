@@ -480,7 +480,9 @@ param(`$commandName, `$parameterName, `$wordToComplete, `$commandAst, `$fakeBoun
             # Check if running in an interactive environment
             # Wrap in try-catch to handle DSC and other restrictive contexts where Host.UI might be unavailable
             try {
-                $isInteractive = ($null -ne $Host.UI -and $null -ne $Host.UI.RawUI -and $Host.UI.RawUI.KeyAvailable) -or [System.Environment]::UserInteractive
+                # Consider it interactive if we have a functional UI or if UserInteractive is true
+                $hasUI = ($null -ne $Host.UI -and $null -ne $Host.UI.RawUI)
+                $isInteractive = $hasUI -or [System.Environment]::UserInteractive
                 if ($isInteractive) {
                     $false
                 }
